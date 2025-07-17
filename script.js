@@ -118,7 +118,10 @@ async function mostrarEscala(data) {
 
     container.innerHTML = `
   <h2>Escala da Semana (${data})</h2>
-  <p> <strong>Equipe:</strong> ${dados.vocal || ''}</p>
+  <p> <strong>Equipe Diaconia:</strong> ${dados.vocal || ''}</p>
+  <p> <strong>Abertura:</strong> ${dados.abertura || ''}</p>
+  <p> <strong>Oferta:</strong> ${dados.oferta || ''}</p>
+  <p> <strong>Palavra:</strong> ${dados.palavra || ''}</p>
 
   ${isAdmin ? `
     <button onclick="editarEscala('${data}')">Editar</button>
@@ -139,6 +142,9 @@ async function editarEscala(data) {
   const form = document.getElementById("escalaForm");
   form.dataEscala.value = data;
   form.vocal.value = dados.vocal || '';
+  form.abertura.value = dados.abertura || '';
+  form.oferta.value = dados.oferta || '';
+  form.palavra.value = dados.palavra || '';
 
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
