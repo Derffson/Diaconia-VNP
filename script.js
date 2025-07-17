@@ -1,5 +1,5 @@
-const API_URL = "https://sheetdb.io/api/v1/w34uix9m94kl8";
-const API_AVISOS = "https://sheetdb.io/api/v1/w34uix9m94kl8?sheet=avisos";
+const API_URL = "https://sheetdb.io/api/v1/8pz0n20zol1uh";
+const API_AVISOS = "https://sheetdb.io/api/v1/8pz0n20zol1uh?sheet=avisos";
 
 document.getElementById("escalaForm").addEventListener("submit", async function (e) {
   e.preventDefault();
@@ -8,13 +8,6 @@ document.getElementById("escalaForm").addEventListener("submit", async function 
   const novaEscala = {
     data: form.dataEscala.value,
     vocal: form.vocal.value.trim(),
-    segundaVoz: form.segundaVoz.value.trim(),
-    baterista: form.baterista.value.trim(),
-    guitarrista: form.guitarrista.value.trim(),
-    baixista: form.baixista.value.trim(),
-    tecladista: form.tecladista.value.trim(),
-    violonista: form.violonista.value.trim(),
-    paleta: form.paleta.value.trim(),
   };
 
   if (!novaEscala.data) {
@@ -125,14 +118,7 @@ async function mostrarEscala(data) {
 
     container.innerHTML = `
   <h2>Escala da Semana (${data})</h2>
-  <p>🎤 <strong>Vocal:</strong> ${dados.vocal || ''}</p>
-  <p>🎵 <strong>Segunda Voz:</strong> ${dados.segundaVoz || ''}</p>
-  <p>🥁 <strong>Baterista:</strong> ${dados.baterista || ''}</p>
-  <p>🎸 <strong>Guitarrista:</strong> ${dados.guitarrista || ''}</p>
-  <p>🎸 <strong>Baixista:</strong> ${dados.baixista || ''}</p>
-  <p>🎹 <strong>Tecladista:</strong> ${dados.tecladista || ''}</p>
-  <p>🎻 <strong>Violonista:</strong> ${dados.violonista || ''}</p>
-  <p>🎨 <strong>Paleta de Cores:</strong> ${dados.paleta || ''}</p>
+  <p> <strong>Equipe:</strong> ${dados.vocal || ''}</p>
 
   ${isAdmin ? `
     <button onclick="editarEscala('${data}')">Editar</button>
@@ -153,13 +139,6 @@ async function editarEscala(data) {
   const form = document.getElementById("escalaForm");
   form.dataEscala.value = data;
   form.vocal.value = dados.vocal || '';
-  form.segundaVoz.value = dados.segundaVoz || '';
-  form.baterista.value = dados.baterista || '';
-  form.guitarrista.value = dados.guitarrista || '';
-  form.baixista.value = dados.baixista || '';
-  form.tecladista.value = dados.tecladista || '';
-  form.violonista.value = dados.violonista || '';
-  form.paleta.value = dados.paleta || '';
 
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -245,7 +224,7 @@ function atualizarCalendario() {
 
 function ativarModoAdmin() {
   const senha = prompt("Digite a senha de administrador:");
-  if (senha === "louvor2024") {
+  if (senha === "diac2025") {
     document.getElementById("areaAdmin").style.display = "block";
     document.getElementById("btnAdmin").style.display = "none";
     atualizarCalendario();
