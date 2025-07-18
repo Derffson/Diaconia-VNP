@@ -182,12 +182,32 @@ async function iniciarCalendario() {
     locale: "pt-br",
     events: await gerarEventos(),
     eventClick: function (info) {
-      const data = info.event.startStr;
-      mostrarEscala(data);
-      document.getElementById("dataBusca").value = data;
-    },
-  });
-  calendar.render();
+  const data = info.event.startStr;
+
+  if (info.event.title.includes("Aviso")) {
+    carregarAvisoPorData(data);
+  } else {
+    mostrarEscala(data);
+  }
+
+  document.getElementById("dataBusca").value = data;
+},
+
+async function carregarAvisoPorData(data) {
+  try {
+    const res = await fetch(API_AVISOS);
+    const avisos = await res.json();
+    const avisoDoDia = avisos.find(a => a.data === data);
+
+    if (avisoDoDia) {
+      document.getElementById("avisoDisplayTexto").textContent = avisoDoDia.aviso;
+    } else {
+      document.getElementById("avisoDisplayTexto").textContent = "Nenhum aviso para essa data.";
+    }
+  } catch (error) {
+    console.error("Erro ao carregar aviso:", error);
+    document.getElementById("avisoDisplayTexto").textContent = "Erro ao carregar aviso.";
+  }
 }
 
 async function gerarEventos() {
