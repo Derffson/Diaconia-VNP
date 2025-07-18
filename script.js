@@ -8,6 +8,9 @@ document.getElementById("escalaForm").addEventListener("submit", async function 
   const novaEscala = {
     data: form.dataEscala.value,
     vocal: form.vocal.value.trim(),
+    abertura: form.abertura.value.trim(),
+    oferta: form.oferta.value.trim(),
+    palavra: form.palavra.value.trim(),
   };
 
   if (!novaEscala.data) {
@@ -117,17 +120,17 @@ async function mostrarEscala(data) {
     const isAdmin = document.getElementById("areaAdmin").style.display === "block";
 
     container.innerHTML = `
-  <h2>Escala da Semana (${data})</h2>
-  <p> <strong>Equipe Diaconia:</strong> ${dados.vocal || ''}</p>
-  <p> <strong>Abertura:</strong> ${dados.abertura || ''}</p>
-  <p> <strong>Oferta:</strong> ${dados.oferta || ''}</p>
-  <p> <strong>Palavra:</strong> ${dados.palavra || ''}</p>
+      <h2>Escala da Semana (${data})</h2>
+      <p><strong>Equipe Diaconia:</strong> ${dados.vocal || ''}</p>
+      <p><strong>Abertura:</strong> ${dados.abertura || ''}</p>
+      <p><strong>Oferta:</strong> ${dados.oferta || ''}</p>
+      <p><strong>Palavra:</strong> ${dados.palavra || ''}</p>
 
-  ${isAdmin ? `
-    <button onclick="editarEscala('${data}')">Editar</button>
-    <button class="botao-secundario" onclick="excluirEscala('${data}')">Excluir</button>
-  ` : ''}
-`;
+      ${isAdmin ? `
+        <button onclick="editarEscala('${data}')">Editar</button>
+        <button class="botao-secundario" onclick="excluirEscala('${data}')">Excluir</button>
+      ` : ''}
+    `;
   } catch (error) {
     console.error("Erro ao buscar escala:", error);
     container.innerHTML = "<p>Erro ao carregar escala.</p>";
@@ -182,32 +185,18 @@ async function iniciarCalendario() {
     locale: "pt-br",
     events: await gerarEventos(),
     eventClick: function (info) {
-  const data = info.event.startStr;
+      const data = info.event.startStr;
 
-  if (info.event.title.includes("Aviso")) {
-    carregarAvisoPorData(data);
-  } else {
-    mostrarEscala(data);
-  }
+      if (info.event.title.includes("Aviso")) {
+        carregarAvisoPorData(data);
+      } else {
+        mostrarEscala(data);
+      }
 
-  document.getElementById("dataBusca").value = data;
-},
-
-async function carregarAvisoPorData(data) {
-  try {
-    const res = await fetch(API_AVISOS);
-    const avisos = await res.json();
-    const avisoDoDia = avisos.find(a => a.data === data);
-
-    if (avisoDoDia) {
-      document.getElementById("avisoDisplayTexto").textContent = avisoDoDia.aviso;
-    } else {
-      document.getElementById("avisoDisplayTexto").textContent = "Nenhum aviso para essa data.";
-    }
-  } catch (error) {
-    console.error("Erro ao carregar aviso:", error);
-    document.getElementById("avisoDisplayTexto").textContent = "Erro ao carregar aviso.";
-  }
+      document.getElementById("dataBusca").value = data;
+    },
+  });
+  calendar.render();
 }
 
 async function gerarEventos() {
@@ -227,14 +216,14 @@ async function gerarEventos() {
     }));
 
   const eventosAvisos = avisos
-  .filter(a => a.data)
-  .map(a => ({
-    title: "📢 Aviso",
-    start: a.data,
-    backgroundColor: "#FFA500",
-    borderColor: "#FF8C00",
-    classNames: ["evento-aviso"] // adiciona a classe para estilizar no CSS
-  }));
+    .filter(a => a.data)
+    .map(a => ({
+      title: "📢 Aviso",
+      start: a.data,
+      backgroundColor: "#FFA500",
+      borderColor: "#FF8C00",
+      classNames: ["evento-aviso"]
+    }));
 
   return [...eventosEscalas, ...eventosAvisos];
 }
@@ -256,5 +245,22 @@ function ativarModoAdmin() {
     atualizarCalendario();
   } else {
     alert("Senha incorreta.");
+  }
+}
+
+async function carregarAvisoPorData(data) {
+  try {
+    const res = await fetch(API_AVISOS);
+    const avisos = await res.json();
+    const avisoDoDia = avisos.find(a => a.data === data);
+
+    if (avisoDoDia) {
+      document.getElementById("avisoDisplayTexto").textContent = avisoDoDia.aviso;
+    } else {
+      document.getElementById("avisoDisplayTexto").textContent = "Nenhum aviso para essa data.";
+    }
+  } catch (error) {
+    console.error("Erro ao carregar aviso:", error);
+    document.getElementById("avisoDisplayTexto").textContent = "Erro ao carregar aviso.";
   }
 }
