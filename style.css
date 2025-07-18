@@ -255,6 +255,10 @@ p, span, li {
   #avisoArea::before {
     margin: 0 auto;
   }
+  
+  .fc .fc-scroller-harness {
+  max-height: 60vh;
+}
 
   #avisoDisplayTexto {
     font-size: 1rem;
