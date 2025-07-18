@@ -1,15 +1,9 @@
-/* Box-sizing global */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
   font-family: 'Inter', sans-serif;
   background-color: #1e2a38;
-  scroll-behavior: smooth;
 }
 
 .conteudo {
@@ -39,6 +33,7 @@ form,
   margin-left: auto;
   margin-right: auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
 label {
@@ -54,12 +49,12 @@ select {
   width: 100%;
   padding: 0.6rem;
   margin-top: 5px;
-  margin-bottom: 1rem;
   background-color: #3a4a5c;
   color: #fdfdfd;
   border: 1px solid #42a5f5;
   border-radius: 8px;
   transition: border 0.3s;
+  box-sizing: border-box;
 }
 
 input:focus,
@@ -75,10 +70,10 @@ button {
   padding: 0.75rem 1.2rem;
   border-radius: 8px;
   cursor: pointer;
+  margin-top: 1rem;
   font-weight: 600;
   transition: background-color 0.3s;
-  margin-top: 0;
-  width: auto;
+  width: 100%;
   font-size: 1rem;
 }
 
@@ -86,26 +81,15 @@ button:hover {
   background-color: #1e88e5;
 }
 
-button:focus-visible {
-  outline: 2px solid #64b5f6;
-  outline-offset: 2px;
-}
-
 .botao-secundario {
   background-color: #ffb74d;
   margin-left: 10px;
   color: #1e2a38;
-  transition: background-color 0.3s;
-  margin-top: 0;
+  margin-top: 0.5rem;
 }
 
 .botao-secundario:hover {
   background-color: #ffa726;
-}
-
-.botao-secundario:focus-visible {
-  outline: 2px solid #ffa726;
-  outline-offset: 2px;
 }
 
 #btnAdmin {
@@ -114,21 +98,10 @@ button:focus-visible {
   background-color: #66bb6a;
   color: white;
   font-weight: bold;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  width: auto;
-  font-size: 1rem;
 }
 
 #btnAdmin:hover {
   background-color: #43a047;
-}
-
-#btnAdmin:focus-visible {
-  outline: 2px solid #43a047;
-  outline-offset: 2px;
 }
 
 p, span, li {
@@ -182,29 +155,14 @@ p, span, li {
   line-height: 1.6;
 }
 
-/* Logo da igreja */
 .logo-igreja {
   display: block;
   margin: 0 auto 1rem;
-  max-width: 160px;
+  max-width: 500px;
   height: auto;
 }
 
-/* Estilo do calendário */
-#calendario {
-  background-color: #273646;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  margin-bottom: 2rem;
-  max-width: 650px;
-  margin-left: auto;
-  margin-right: auto;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* 📱 Responsividade */
+/* 📱 Responsividade geral */
 @media (max-width: 600px) {
   .conteudo {
     padding: 1.5rem 1rem;
@@ -220,18 +178,6 @@ p, span, li {
     width: 100%;
     margin: 1rem auto;
     padding: 1rem;
-  }
-
-  button {
-    width: 100%;
-    padding: 0.7rem;
-    font-size: 1rem;
-    margin-top: 0.75rem;
-  }
-
-  .botao-secundario {
-    margin-top: 0.5rem;
-    margin-left: 0;
   }
 
   input[type="text"],
@@ -255,16 +201,45 @@ p, span, li {
   #avisoArea::before {
     margin: 0 auto;
   }
-  
-  .fc .fc-scroller-harness {
-  max-height: 60vh;
-}
 
   #avisoDisplayTexto {
     font-size: 1rem;
   }
 
-  .logo-igreja {
-    max-width: 120px;
+  .fc {
+    font-size: 12px;
+  }
+
+  .fc .fc-daygrid-event {
+    padding: 2px 4px;
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .fc .fc-daygrid-day-top {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 4px;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 1rem;
+  }
+
+  .fc .fc-button {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .fc .fc-daygrid-day-number {
+    font-size: 0.85rem;
+    padding: 2px;
+  }
+
+  .fc .fc-scroller-harness {
+    max-height: 60vh;
   }
 }
