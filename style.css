@@ -1,14 +1,20 @@
+/* Box-sizing global */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
   font-family: 'Inter', sans-serif;
   background-color: #1e2a38;
+  scroll-behavior: smooth;
 }
 
 .conteudo {
-  padding: 2rem 1rem; /* adiciona mais espaço lateral */
-  max-width: 700px;   /* mantém os campos mais estreitos */
+  padding: 2rem 1rem;
+  max-width: 700px;
   margin: 0 auto;
 }
 
@@ -33,7 +39,6 @@ form,
   margin-left: auto;
   margin-right: auto;
   width: 100%;
-  box-sizing: border-box;
 }
 
 label {
@@ -49,12 +54,12 @@ select {
   width: 100%;
   padding: 0.6rem;
   margin-top: 5px;
+  margin-bottom: 1rem;
   background-color: #3a4a5c;
   color: #fdfdfd;
   border: 1px solid #42a5f5;
   border-radius: 8px;
   transition: border 0.3s;
-  box-sizing: border-box;
 }
 
 input:focus,
@@ -70,23 +75,37 @@ button {
   padding: 0.75rem 1.2rem;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 1rem;
   font-weight: 600;
   transition: background-color 0.3s;
+  margin-top: 0;
+  width: auto;
+  font-size: 1rem;
 }
 
 button:hover {
   background-color: #1e88e5;
 }
 
+button:focus-visible {
+  outline: 2px solid #64b5f6;
+  outline-offset: 2px;
+}
+
 .botao-secundario {
   background-color: #ffb74d;
   margin-left: 10px;
   color: #1e2a38;
+  transition: background-color 0.3s;
+  margin-top: 0;
 }
 
 .botao-secundario:hover {
   background-color: #ffa726;
+}
+
+.botao-secundario:focus-visible {
+  outline: 2px solid #ffa726;
+  outline-offset: 2px;
 }
 
 #btnAdmin {
@@ -95,10 +114,21 @@ button:hover {
   background-color: #66bb6a;
   color: white;
   font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: auto;
+  font-size: 1rem;
 }
 
 #btnAdmin:hover {
   background-color: #43a047;
+}
+
+#btnAdmin:focus-visible {
+  outline: 2px solid #43a047;
+  outline-offset: 2px;
 }
 
 p, span, li {
@@ -152,6 +182,28 @@ p, span, li {
   line-height: 1.6;
 }
 
+/* Logo da igreja */
+.logo-igreja {
+  display: block;
+  margin: 0 auto 1rem;
+  max-width: 160px;
+  height: auto;
+}
+
+/* Estilo do calendário */
+#calendario {
+  background-color: #273646;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  margin-bottom: 2rem;
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 /* 📱 Responsividade */
 @media (max-width: 600px) {
   .conteudo {
@@ -169,7 +221,6 @@ p, span, li {
     margin: 1rem auto;
     padding: 1rem;
   }
-}
 
   button {
     width: 100%;
@@ -208,10 +259,8 @@ p, span, li {
   #avisoDisplayTexto {
     font-size: 1rem;
   }
-.logo-igreja {
-  display: block;
-  margin: 0 auto 1rem;
-  max-width: 500px;
-  height: auto;
-}
+
+  .logo-igreja {
+    max-width: 120px;
+  }
 }
