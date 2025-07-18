@@ -263,4 +263,40 @@ p, span, li {
   .logo-igreja {
     max-width: 120px;
   }
+
+  /* Estilo especial para eventos de aviso no calendário */
+.fc-event.evento-aviso {
+  background-color: #f39c12 !important;
+  border: none !important;
+  color: #fff !important;
+  font-weight: bold;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  border-radius: 6px;
 }
+
+.fc .fc-daygrid-day-number {
+  font-size: 0.85rem;
+}
+
+/* Tamanho e espaçamento reduzido para celular */
+@media (max-width: 600px) {
+  #calendario {
+    font-size: 0.85rem;
+  }
+
+  .fc-toolbar-title {
+    font-size: 1.2rem;
+  }
+
+  .fc-button {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  .fc-event {
+    padding: 2px 4px;
+    font-size: 0.75rem;
+  }
+}
+
