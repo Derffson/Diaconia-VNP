@@ -187,7 +187,7 @@ async function iniciarCalendario() {
     eventClick: function (info) {
       const data = info.event.startStr;
 
-      if (info.event.title.includes("Aviso")) {
+      if (info.event.classNames.includes("evento-aviso")) {
         carregarAvisoPorData(data);
       } else {
         mostrarEscala(data);
