@@ -34,6 +34,7 @@ document.getElementById("escalaForm").addEventListener("submit", async function 
     alert("Escala salva com sucesso!");
     form.reset();
     atualizarCalendario();
+    preencherFiltro();  // Atualiza filtro ao salvar escala
   } catch (error) {
     alert("Erro ao salvar escala.");
     console.error(error);
@@ -164,6 +165,7 @@ async function excluirEscala(data) {
 
     document.getElementById("escalaSalva").innerHTML = "";
     atualizarCalendario();
+    preencherFiltro();
     alert("Escala excluída com sucesso!");
   } catch (error) {
     console.error(error);
@@ -172,10 +174,13 @@ async function excluirEscala(data) {
 }
 
 let calendar;
+let escalasCache = []; // cache para escalas
 
 document.addEventListener("DOMContentLoaded", () => {
   iniciarCalendario();
   carregarAviso();
+  preencherFiltro();
+  document.getElementById("filtroDiaconos").addEventListener("change", atualizarCalendario);
 });
 
 async function iniciarCalendario() {
@@ -200,19 +205,27 @@ async function iniciarCalendario() {
 }
 
 async function gerarEventos() {
-  const resEscalas = await fetch(API_URL);
-  const escalas = await resEscalas.json();
+  // Recarrega escalas do cache ou do servidor
+  if (!escalasCache.length) {
+    const resEscalas = await fetch(API_URL);
+    escalasCache = await resEscalas.json();
+  }
 
   const resAvisos = await fetch(API_AVISOS);
   const avisos = await resAvisos.json();
 
-  const eventosEscalas = escalas
+  const filtroSelecionado = document.getElementById("filtroDiaconos").value;
+
+  // Eventos das escalas filtrados por vocal (nome)
+  const eventosEscalas = escalasCache
     .filter(e => e.data)
+    .filter(e => filtroSelecionado === "todos" || (e.vocal && e.vocal.toLowerCase() === filtroSelecionado.toLowerCase()))
     .map(e => ({
       title: "Escala",
       start: e.data,
       backgroundColor: "#3a87ad",
       borderColor: "#3a87ad",
+      extendedProps: { vocal: e.vocal }
     }));
 
   const eventosAvisos = avisos
@@ -231,6 +244,8 @@ async function gerarEventos() {
 function atualizarCalendario() {
   if (!calendar) return;
   calendar.removeAllEvents();
+  // Limpar cache para atualizar escalas (força nova leitura)
+  escalasCache = [];
   gerarEventos().then((eventos) => {
     calendar.addEventSource(eventos);
     calendar.refetchEvents();
@@ -243,6 +258,7 @@ function ativarModoAdmin() {
     document.getElementById("areaAdmin").style.display = "block";
     document.getElementById("btnAdmin").style.display = "none";
     atualizarCalendario();
+    preencherFiltro();
   } else {
     alert("Senha incorreta.");
   }
@@ -262,5 +278,34 @@ async function carregarAvisoPorData(data) {
   } catch (error) {
     console.error("Erro ao carregar aviso:", error);
     document.getElementById("avisoDisplayTexto").textContent = "Erro ao carregar aviso.";
+  }
+}
+
+// Função para preencher filtro de diaconos/ministros com nomes únicos
+async function preencherFiltro() {
+  try {
+    const res = await fetch(API_URL);
+    const escalas = await res.json();
+
+    // Extrai nomes únicos, ignorando vazios
+    const nomesUnicos = [...new Set(escalas
+      .map(e => e.vocal)
+      .filter(vocal => vocal && vocal.trim().length > 0)
+      .map(vocal => vocal.trim())
+    )].sort((a,b) => a.localeCompare(b, 'pt-BR'));
+
+    const filtro = document.getElementById("filtroDiaconos");
+    // Limpa opções exceto a primeira (Todos)
+    filtro.options.length = 1;
+
+    // Adiciona os nomes como opções
+    nomesUnicos.forEach(nome => {
+      const option = document.createElement("option");
+      option.value = nome;
+      option.textContent = nome;
+      filtro.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Erro ao preencher filtro:", error);
   }
 }
