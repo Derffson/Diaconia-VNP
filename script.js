@@ -7,9 +7,9 @@ let avisosCache = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   iniciarCalendario();
-  carregarAviso(); // Sem parâmetro -> usa cache depois
+  carregarAviso(); 
   preencherFiltro();
-  document.getElementById("filtroDiaconos").addEventListener("change", atualizarCalendario);
+  document.getElementById("filtroDiaconos").addEventListener("change", () => atualizarCalendario());
 });
 
 document.getElementById("escalaForm").addEventListener("submit", async function (e) {
@@ -42,8 +42,8 @@ document.getElementById("escalaForm").addEventListener("submit", async function 
 
     alert("Escala salva com sucesso!");
     form.reset();
-    escalasCache = []; // limpa cache para recarregar
-    atualizarCalendario();
+    escalasCache = [];
+    atualizarCalendario({ forcarRecarregar: true });
     preencherFiltro();
   } catch (error) {
     alert("Erro ao salvar escala.");
@@ -62,7 +62,6 @@ document.getElementById("formAviso").addEventListener("submit", async function (
   }
 
   try {
-    // Apaga só aviso com data igual
     await fetch(`${API_AVISOS}/data/data/${encodeURIComponent(dataAviso)}`, {
       method: "DELETE",
     });
@@ -75,9 +74,9 @@ document.getElementById("formAviso").addEventListener("submit", async function (
 
     alert("Aviso salvo!");
     e.target.reset();
-    avisosCache = []; // limpa cache para forçar recarregar
+    avisosCache = [];
     carregarAviso();
-    atualizarCalendario();
+    atualizarCalendario({ forcarRecarregar: true });
   } catch (error) {
     alert("Erro ao salvar aviso.");
     console.error(error);
@@ -175,7 +174,7 @@ async function excluirEscala(data) {
 
     document.getElementById("escalaSalva").innerHTML = "";
     escalasCache = [];
-    atualizarCalendario();
+    atualizarCalendario({ forcarRecarregar: true });
     preencherFiltro();
     alert("Escala excluída com sucesso!");
   } catch (error) {
@@ -246,12 +245,13 @@ async function gerarEventos() {
   return { eventos: [...eventosEscalas, ...eventosAvisos], avisos: avisosCache };
 }
 
-function atualizarCalendario() {
+function atualizarCalendario({ forcarRecarregar = false } = {}) {
   if (!calendar) return;
   calendar.removeAllEvents();
-  escalasCache = [];
-  avisosCache = [];
-  gerarEventos().then(({ eventos, avisos }) => {
+
+  if (forcarRecarregar) escalasCache = [];
+
+  gerarEventos().then((eventos) => {
     calendar.addEventSource(eventos);
     calendar.refetchEvents();
   });
