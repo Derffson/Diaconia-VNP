@@ -2,112 +2,185 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Escala da Igreja</title>
-  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Diaconia Vida na Palavra</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
   <link rel="stylesheet" href="style.css" />
-  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+
+  <style>
+    html, body {
+      height: 100%; margin: 0; padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .fundo-desfocado {
+      background-image: url('https://raw.githubusercontent.com/Derffson/Diaconia-VNP/main/fundo.jpg');
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fundo-desfocado::before {
+      content: ''; position: absolute; inset: 0;
+      backdrop-filter: blur(8px);
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 1;
+    }
+
+    .conteudo {
+      position: relative; z-index: 2;
+      padding: 2rem; max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1, h2 { color: #ffffff; text-align: center; }
+
+    form, .busca, .resultado, #calendario, #areaAdmin, #avisoArea {
+      background-color: #273646;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      margin-bottom: 2rem;
+      max-width: 650px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #d6dbe0;
+    }
+
+    input[type="text"], input[type="date"], select {
+      width: 100%; padding: 0.6rem;
+      background-color: #3a4a5c;
+      color: #fdfdfd;
+      border: 1px solid #42a5f5;
+      border-radius: 8px;
+    }
+
+    button {
+      background-color: #42a5f5;
+      color: white; border: none;
+      padding: 0.75rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer; font-weight: 600;
+    }
+
+    button:hover { background-color: #1e88e5; }
+
+    .botao-secundario {
+      background-color: #ffb74d; margin-left: 10px; color: #1e2a38;
+    }
+
+    .botao-secundario:hover { background-color: #ffa726; }
+
+    #btnAdmin {
+      display: block; margin: 0 auto 2rem;
+      background-color: #66bb6a;
+    }
+
+    #btnAdmin:hover { background-color: #43a047; }
+
+    #calendario * {
+      color: white !important;
+    }
+
+    /* estilo para o filtro */
+    #filtroDiaconos {
+      max-width: 300px;
+      margin: 0 auto 1rem auto;
+      display: block;
+      background-color: #3a4a5c;
+      border: 1px solid #42a5f5;
+      border-radius: 8px;
+      color: #fdfdfd;
+      padding: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      form, .busca, .resultado, #areaAdmin, #calendario, #avisoArea {
+        padding: 1rem; width: 100%; margin: 1rem auto;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="conteudo">
-    <div class="filtro" style="text-align:center; margin-bottom: 1rem;">
-      <label for="filtroEquipe" style="color: #fff; font-weight: bold;">Filtrar por Equipe:</label>
-      <select id="filtroEquipe" onchange="filtrarCalendario()" style="margin-left: 10px; padding: 0.4rem; border-radius: 6px;">
-        <option value="">Todas</option>
+  <div class="fundo-desfocado">
+    <div class="conteudo">
+      <button id="btnAdmin" onclick="ativarModoAdmin()">Modo Admin</button>
+
+      <div id="areaAdmin" style="display:none;">
+        <form id="escalaForm">
+          <label for="dataEscala">Data da Escala:</label>
+          <input type="date" id="dataEscala" name="dataEscala" required />
+
+          <label for="vocal">Equipe Diaconia:</label>
+          <input type="text" id="vocal" name="vocal" />
+
+          <label for="abertura">Abertura:</label>
+          <input type="text" id="abertura" name="abertura" />
+
+          <label for="oferta">Oferta:</label>
+          <input type="text" id="oferta" name="oferta" />
+
+          <label for="palavra">Palavra:</label>
+          <input type="text" id="palavra" name="palavra" />
+
+          <button type="submit">Salvar Escala</button>
+        </form>
+
+        <form id="formAviso">
+          <label for="avisoTexto">Novo Aviso:</label>
+          <input type="text" id="avisoTexto" name="aviso" placeholder="Digite o aviso aqui..." />
+
+          <label for="dataAviso">Data do Aviso:</label>
+          <input type="date" id="dataAviso" name="dataAviso" required />
+
+          <button type="submit">Salvar Aviso</button>
+        </form>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 1rem;">
+        <img src="https://raw.githubusercontent.com/Derffson/Diaconia-VNP/main/logo.jpg" alt="Logo Igreja Vida na Palavra" style="max-width: 160px; height: auto;" />
+      </div>
+
+      <h1>Diaconia e Ministros Igreja Vida na Palavra</h1>
+
+      <div class="busca">
+        <h2>Buscar Escala</h2>
+        <label for="dataBusca">Data:</label>
+        <input type="date" id="dataBusca" />
+        <button onclick="buscarEscala()">Buscar</button>
+      </div>
+
+      <div class="resultado" id="escalaSalva"></div>
+
+      <div class="resultado" id="avisoArea">
+        <h2>Aviso</h2>
+        <p id="avisoDisplayTexto">Carregando aviso...</p>
+      </div>
+
+      <!-- Aqui insiro o filtro que você pediu -->
+      <select id="filtroDiaconos" title="Filtrar por Diácono/Ministro">
+        <option value="todos" selected>Todos os Diáconos/Ministros</option>
+        <!-- Opções serão preenchidas dinamicamente -->
       </select>
-    </div>
 
-    <div id="calendario"></div>
-
-    <div id="avisoArea" style="display: none">
-      <h2>Aviso</h2>
-      <div id="avisoDisplayTexto"></div>
+      <div id="calendario"></div>
     </div>
   </div>
 
-  <script>
-    const API_URL = 'https://sheetdb.io/api/v1/w34uix9m94kl8';
-    const API_ESCALAS = `${API_URL}?sheet=escalas`;
-    const API_AVISOS = `${API_URL}?sheet=avisos`;
-
-    let todasEscalas = [];
-    let todosAvisos = [];
-    let nomesEquipe = new Set();
-    let calendario;
-
-    document.addEventListener('DOMContentLoaded', async function () {
-      const calendarioEl = document.getElementById('calendario');
-
-      await carregarEventos();
-
-      calendario = new FullCalendar.Calendar(calendarioEl, {
-        initialView: 'dayGridMonth',
-        locale: 'pt-br',
-        events: gerarEventosCalendario(),
-        eventClick: function (info) {
-          const aviso = info.event.extendedProps.aviso;
-          if (aviso) {
-            document.getElementById('avisoDisplayTexto').innerText = aviso;
-            document.getElementById('avisoArea').style.display = 'block';
-            window.scrollTo({ top: document.getElementById('avisoArea').offsetTop - 50, behavior: 'smooth' });
-          }
-        }
-      });
-
-      calendario.render();
-      preencherFiltroEquipes();
-    });
-
-    async function carregarEventos() {
-      try {
-        const [resEscalas, resAvisos] = await Promise.all([
-          fetch(API_ESCALAS),
-          fetch(API_AVISOS)
-        ]);
-
-        todasEscalas = await resEscalas.json();
-        todosAvisos = await resAvisos.json();
-
-        todasEscalas.forEach(e => nomesEquipe.add(e.nome));
-      } catch (err) {
-        console.error('Erro ao carregar eventos:', err);
-      }
-    }
-
-    function gerarEventosCalendario(filtroNome = '') {
-      const eventosEscala = todasEscalas
-        .filter(e => !filtroNome || e.nome === filtroNome)
-        .map(e => ({
-          title: `Escala: ${e.nome}`,
-          start: e.data,
-          color: '#42a5f5'
-        }));
-
-      const eventosAviso = todosAvisos.map(e => ({
-        title: '🔔 Aviso',
-        start: e.data,
-        color: '#f39c12',
-        aviso: e.aviso
-      }));
-
-      return [...eventosEscala, ...eventosAviso];
-    }
-
-    function filtrarCalendario() {
-      const filtro = document.getElementById('filtroEquipe').value;
-      calendario.removeAllEvents();
-      calendario.addEventSource(gerarEventosCalendario(filtro));
-    }
-
-    function preencherFiltroEquipes() {
-      const select = document.getElementById('filtroEquipe');
-      nomesEquipe.forEach(nome => {
-        const option = document.createElement('option');
-        option.value = nome;
-        option.textContent = nome;
-        select.appendChild(option);
-      });
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
