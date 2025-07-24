@@ -1,5 +1,16 @@
-const API_URL = "https://sheetdb.io/api/v1/8pz0n20zol1uh";
-const API_AVISOS = "https://sheetdb.io/api/v1/8pz0n20zol1uh?sheet=avisos";
+const API_URL = "https://sheetdb.io/api/v1/3dm1n48bg6bnk";
+const API_AVISOS = "https://sheetdb.io/api/v1/3dm1n48bg6bnk?sheet=avisos";
+
+let calendar;
+let escalasCache = [];
+let avisosCache = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+  iniciarCalendario();
+  carregarAviso(); // Sem parâmetro -> usa cache depois
+  preencherFiltro();
+  document.getElementById("filtroDiaconos").addEventListener("change", atualizarCalendario);
+});
 
 document.getElementById("escalaForm").addEventListener("submit", async function (e) {
   e.preventDefault();
@@ -19,12 +30,10 @@ document.getElementById("escalaForm").addEventListener("submit", async function 
   }
 
   try {
-    // Apaga escala da data antes para não duplicar
     await fetch(`${API_URL}/data/data/${encodeURIComponent(novaEscala.data)}`, {
       method: "DELETE",
     });
 
-    // Salva nova escala
     await fetch(API_URL, {
       method: "POST",
       body: JSON.stringify({ data: [novaEscala] }),
@@ -33,8 +42,9 @@ document.getElementById("escalaForm").addEventListener("submit", async function 
 
     alert("Escala salva com sucesso!");
     form.reset();
+    escalasCache = []; // limpa cache para recarregar
     atualizarCalendario();
-    preencherFiltro();  // Atualiza filtro ao salvar escala
+    preencherFiltro();
   } catch (error) {
     alert("Erro ao salvar escala.");
     console.error(error);
@@ -52,17 +62,11 @@ document.getElementById("formAviso").addEventListener("submit", async function (
   }
 
   try {
-    // Busca avisos antigos e deleta todos para manter só o último
-    const res = await fetch(API_AVISOS);
-    const anteriores = await res.json();
+    // Apaga só aviso com data igual
+    await fetch(`${API_AVISOS}/data/data/${encodeURIComponent(dataAviso)}`, {
+      method: "DELETE",
+    });
 
-    for (const a of anteriores) {
-      await fetch(`${API_AVISOS}/data/aviso/${encodeURIComponent(a.aviso)}`, {
-        method: "DELETE",
-      });
-    }
-
-    // Salva novo aviso com data
     await fetch(API_AVISOS, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -71,6 +75,7 @@ document.getElementById("formAviso").addEventListener("submit", async function (
 
     alert("Aviso salvo!");
     e.target.reset();
+    avisosCache = []; // limpa cache para forçar recarregar
     carregarAviso();
     atualizarCalendario();
   } catch (error) {
@@ -79,17 +84,23 @@ document.getElementById("formAviso").addEventListener("submit", async function (
   }
 });
 
-async function carregarAviso() {
+async function carregarAviso(avisos) {
   try {
-    const res = await fetch(API_AVISOS);
-    const avisos = await res.json();
+    if (!avisos) {
+      if (!avisosCache.length) {
+        const res = await fetch(API_AVISOS);
+        avisosCache = await res.json();
+      }
+      avisos = avisosCache;
+    }
+
     if (!avisos.length) {
       document.getElementById("avisoDisplayTexto").textContent = "Nenhum aviso cadastrado.";
       return;
     }
-    // Último aviso cadastrado
+
     const ultimo = avisos[avisos.length - 1];
-    document.getElementById("avisoDisplayTexto").textContent = ultimo.aviso;
+    document.getElementById("avisoDisplayTexto").innerHTML = (ultimo.aviso || "").replace(/\n/g, "<br>");
   } catch (error) {
     console.error("Erro ao carregar aviso:", error);
     document.getElementById("avisoDisplayTexto").textContent = "Erro ao carregar aviso.";
@@ -126,7 +137,6 @@ async function mostrarEscala(data) {
       <p><strong>Abertura:</strong> ${dados.abertura || ''}</p>
       <p><strong>Oferta:</strong> ${dados.oferta || ''}</p>
       <p><strong>Palavra:</strong> ${dados.palavra || ''}</p>
-
       ${isAdmin ? `
         <button onclick="editarEscala('${data}')">Editar</button>
         <button class="botao-secundario" onclick="excluirEscala('${data}')">Excluir</button>
@@ -164,6 +174,7 @@ async function excluirEscala(data) {
     if (!res.ok) throw new Error("Falha ao excluir escala");
 
     document.getElementById("escalaSalva").innerHTML = "";
+    escalasCache = [];
     atualizarCalendario();
     preencherFiltro();
     alert("Escala excluída com sucesso!");
@@ -173,27 +184,20 @@ async function excluirEscala(data) {
   }
 }
 
-let calendar;
-let escalasCache = []; // cache para escalas
-
-document.addEventListener("DOMContentLoaded", () => {
-  iniciarCalendario();
-  carregarAviso();
-  preencherFiltro();
-  document.getElementById("filtroDiaconos").addEventListener("change", atualizarCalendario);
-});
-
 async function iniciarCalendario() {
   const calendarEl = document.getElementById("calendario");
+
+  const { eventos, avisos } = await gerarEventos();
+
   calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     locale: "pt-br",
-    events: await gerarEventos(),
+    events: eventos,
     eventClick: function (info) {
       const data = info.event.startStr;
 
       if (info.event.classNames.includes("evento-aviso")) {
-        carregarAvisoPorData(data);
+        carregarAvisoPorData(data, avisos);
       } else {
         mostrarEscala(data);
       }
@@ -201,22 +205,23 @@ async function iniciarCalendario() {
       document.getElementById("dataBusca").value = data;
     },
   });
+
   calendar.render();
 }
 
 async function gerarEventos() {
-  // Recarrega escalas do cache ou do servidor
   if (!escalasCache.length) {
     const resEscalas = await fetch(API_URL);
     escalasCache = await resEscalas.json();
   }
 
-  const resAvisos = await fetch(API_AVISOS);
-  const avisos = await resAvisos.json();
+  if (!avisosCache.length) {
+    const resAvisos = await fetch(API_AVISOS);
+    avisosCache = await resAvisos.json();
+  }
 
   const filtroSelecionado = document.getElementById("filtroDiaconos").value;
 
-  // Eventos das escalas filtrados por vocal (nome)
   const eventosEscalas = escalasCache
     .filter(e => e.data)
     .filter(e => filtroSelecionado === "todos" || (e.vocal && e.vocal.toLowerCase() === filtroSelecionado.toLowerCase()))
@@ -228,7 +233,7 @@ async function gerarEventos() {
       extendedProps: { vocal: e.vocal }
     }));
 
-  const eventosAvisos = avisos
+  const eventosAvisos = avisosCache
     .filter(a => a.data)
     .map(a => ({
       title: "📢",
@@ -238,15 +243,15 @@ async function gerarEventos() {
       classNames: ["evento-aviso"]
     }));
 
-  return [...eventosEscalas, ...eventosAvisos];
+  return { eventos: [...eventosEscalas, ...eventosAvisos], avisos: avisosCache };
 }
 
 function atualizarCalendario() {
   if (!calendar) return;
   calendar.removeAllEvents();
-  // Limpar cache para atualizar escalas (força nova leitura)
   escalasCache = [];
-  gerarEventos().then((eventos) => {
+  avisosCache = [];
+  gerarEventos().then(({ eventos, avisos }) => {
     calendar.addEventSource(eventos);
     calendar.refetchEvents();
   });
@@ -264,14 +269,19 @@ function ativarModoAdmin() {
   }
 }
 
-async function carregarAvisoPorData(data) {
+async function carregarAvisoPorData(data, avisos) {
   try {
-    const res = await fetch(API_AVISOS);
-    const avisos = await res.json();
+    if (!avisos) {
+      if (!avisosCache.length) {
+        const res = await fetch(API_AVISOS);
+        avisosCache = await res.json();
+      }
+      avisos = avisosCache;
+    }
+
     const avisoDoDia = avisos.find(a => a.data === data);
 
     if (avisoDoDia) {
-      // Substitui quebras de linha (\n) por <br> para exibição correta
       document.getElementById("avisoDisplayTexto").innerHTML = (avisoDoDia.aviso || "").replace(/\n/g, "<br>");
     } else {
       document.getElementById("avisoDisplayTexto").textContent = "Nenhum aviso para essa data.";
@@ -282,24 +292,20 @@ async function carregarAvisoPorData(data) {
   }
 }
 
-// Função para preencher filtro de diaconos/ministros com nomes únicos
 async function preencherFiltro() {
   try {
     const res = await fetch(API_URL);
     const escalas = await res.json();
 
-    // Extrai nomes únicos, ignorando vazios
     const nomesUnicos = [...new Set(escalas
       .map(e => e.vocal)
       .filter(vocal => vocal && vocal.trim().length > 0)
       .map(vocal => vocal.trim())
-    )].sort((a,b) => a.localeCompare(b, 'pt-BR'));
+    )].sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
     const filtro = document.getElementById("filtroDiaconos");
-    // Limpa opções exceto a primeira (Todos)
     filtro.options.length = 1;
 
-    // Adiciona os nomes como opções
     nomesUnicos.forEach(nome => {
       const option = document.createElement("option");
       option.value = nome;
