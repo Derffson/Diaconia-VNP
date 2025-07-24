@@ -251,7 +251,7 @@ function atualizarCalendario({ forcarRecarregar = false } = {}) {
 
   if (forcarRecarregar) escalasCache = [];
 
-  gerarEventos().then((eventos) => {
+  gerarEventos().then(({ eventos }) => {
     calendar.addEventSource(eventos);
     calendar.refetchEvents();
   });
