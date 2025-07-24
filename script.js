@@ -271,7 +271,8 @@ async function carregarAvisoPorData(data) {
     const avisoDoDia = avisos.find(a => a.data === data);
 
     if (avisoDoDia) {
-      document.getElementById("avisoDisplayTexto").textContent = avisoDoDia.aviso;
+      // Substitui quebras de linha (\n) por <br> para exibição correta
+      document.getElementById("avisoDisplayTexto").innerHTML = (avisoDoDia.aviso || "").replace(/\n/g, "<br>");
     } else {
       document.getElementById("avisoDisplayTexto").textContent = "Nenhum aviso para essa data.";
     }
