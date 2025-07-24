@@ -298,5 +298,24 @@ p, span, li {
     padding: 2px 4px;
     font-size: 0.75rem;
   }
+  
+  textarea {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 5px;
+  margin-bottom: 1rem;
+  background-color: #3a4a5c;
+  color: #fdfdfd;
+  border: 1px solid #42a5f5;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  transition: border 0.3s;
+  resize: vertical;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #64b5f6;
+}
 }
 
